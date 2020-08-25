@@ -5,10 +5,11 @@ import RotateRightOutlined from '@ant-design/icons/RotateRightOutlined';
 import ZoomInOutlined from '@ant-design/icons/ZoomInOutlined';
 import ZoomOutOutlined from '@ant-design/icons/ZoomOutOutlined';
 import CloseOutlined from '@ant-design/icons/CloseOutlined';
+import LeftOutlined from '@ant-design/icons/LeftOutlined';
+import RightOutlined from '@ant-design/icons/RightOutlined';
 import classnames from 'classnames';
 import addEventListener from 'rc-util/lib/Dom/addEventListener';
 import { getOffset } from 'rc-util/lib/Dom/css';
-import { warning } from 'rc-util/lib/warning';
 import useFrameSetState from './hooks/useFrameSetState';
 import getFixScaleEleTransPosition from './getFixScaleEleTransPosition';
 
@@ -18,6 +19,8 @@ interface PreviewProps extends Omit<IDialogPropTypes, 'onClose'> {
   onClose?: (e: React.SyntheticEvent<HTMLDivElement | HTMLLIElement>) => void;
   src?: string;
   alt?: string;
+  urls?: string[];
+  current?: string;
 }
 
 const initialPosition = {
@@ -26,7 +29,7 @@ const initialPosition = {
 };
 
 const Preview: React.FC<PreviewProps> = props => {
-  const { prefixCls, src, alt, onClose, afterClose, visible, ...restProps } = props;
+  const { prefixCls, src, alt, onClose, afterClose, visible, current, urls, ...restProps } = props;
   const [scale, setScale] = useState(1);
   const [rotate, setRotate] = useState(0);
   const [position, setPosition] = useFrameSetState<{
@@ -34,6 +37,8 @@ const Preview: React.FC<PreviewProps> = props => {
     y: number;
   }>(initialPosition);
   const imgRef = React.useRef<HTMLImageElement>();
+  const urlsRef = React.useRef<string[]>(urls || []);
+  const indexRef = React.useRef<number>(urlsRef.current.indexOf(current || src));
   const originPositionRef = React.useRef<{
     originX: number;
     originY: number;
@@ -46,6 +51,10 @@ const Preview: React.FC<PreviewProps> = props => {
     deltaY: 0,
   });
   const [isMoving, setMoving] = React.useState(false);
+
+  const [currentSrc, setCurrentSrc] = React.useState(
+    indexRef.current > -1 ? urls[indexRef.current] : src,
+  );
 
   const onAfterClose = () => {
     setScale(1);
@@ -71,6 +80,26 @@ const Preview: React.FC<PreviewProps> = props => {
 
   const onRotateLeft = () => {
     setRotate(value => value - 90);
+  };
+
+  const onSwitchLeft: React.MouseEventHandler<HTMLDivElement> = event => {
+    event.preventDefault();
+    // Without this mask close will abnormal
+    event.stopPropagation();
+    if (indexRef.current > 0) {
+      indexRef.current -= 1;
+      setCurrentSrc(urls[indexRef.current]);
+    }
+  };
+
+  const onSwitchRight: React.MouseEventHandler<HTMLDivElement> = event => {
+    event.preventDefault();
+    // Without this mask close will abnormal
+    event.stopPropagation();
+    if (indexRef.current < urlsRef.current.length - 1) {
+      indexRef.current += 1;
+      setCurrentSrc(urls[indexRef.current]);
+    }
   };
 
   const wrapClassName = classnames({
@@ -176,6 +205,10 @@ const Preview: React.FC<PreviewProps> = props => {
       if (onTopMouseUpListener) onTopMouseUpListener.remove();
       /* istanbul ignore next */
       if (onTopMouseMoveListener) onTopMouseMoveListener.remove();
+      if (!visible) {
+        indexRef.current = urlsRef.current.indexOf(current || src);
+        setCurrentSrc(indexRef.current > -1 ? urls[indexRef.current] : src);
+      }
     };
   }, [visible, isMoving]);
 
@@ -215,13 +248,31 @@ const Preview: React.FC<PreviewProps> = props => {
           onMouseDown={onMouseDown}
           ref={imgRef}
           className={`${prefixCls}-img`}
-          src={src}
+          src={currentSrc}
           alt={alt}
           style={{
             transform: `scale3d(${scale}, ${scale}, 1) rotate(${rotate}deg)`,
           }}
         />
       </div>
+      {urlsRef.current.length ? (
+        <div
+          className={classnames(`${prefixCls}-switch-left`, {
+            [`${prefixCls}-switch-left-disabled`]: indexRef.current <= 0,
+          })}
+        >
+          <LeftOutlined onClick={onSwitchLeft} />
+        </div>
+      ) : null}
+      {urlsRef.current.length ? (
+        <div
+          className={classnames(`${prefixCls}-switch-right`, {
+            [`${prefixCls}-switch-right-disabled`]: indexRef.current >= urlsRef.current.length - 1,
+          })}
+        >
+          <RightOutlined onClick={onSwitchRight} />
+        </div>
+      ) : null}
     </Dialog>
   );
 };
