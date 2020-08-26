@@ -11,15 +11,16 @@ import classnames from 'classnames';
 import addEventListener from 'rc-util/lib/Dom/addEventListener';
 import { getOffset } from 'rc-util/lib/Dom/css';
 import useFrameSetState from './hooks/useFrameSetState';
+import usePreviewUrls from './hooks/usePreviewUrls';
 import getFixScaleEleTransPosition from './getFixScaleEleTransPosition';
 
 const { useState } = React;
 
-interface PreviewProps extends Omit<IDialogPropTypes, 'onClose'> {
+export interface PreviewProps extends Omit<IDialogPropTypes, 'onClose'> {
   onClose?: (e: React.SyntheticEvent<HTMLDivElement | HTMLLIElement>) => void;
   src?: string;
   alt?: string;
-  urls?: string[];
+  groupKey?: string;
 }
 
 const initialPosition = {
@@ -28,7 +29,7 @@ const initialPosition = {
 };
 
 const Preview: React.FC<PreviewProps> = props => {
-  const { prefixCls, src, alt, onClose, afterClose, visible, urls, ...restProps } = props;
+  const { prefixCls, src, alt, onClose, afterClose, visible, groupKey, ...restProps } = props;
   const [scale, setScale] = useState(1);
   const [rotate, setRotate] = useState(0);
   const [position, setPosition] = useFrameSetState<{
@@ -49,13 +50,9 @@ const Preview: React.FC<PreviewProps> = props => {
   });
   const [isMoving, setMoving] = React.useState(false);
 
-  let mergedUrls = [src];
+  const [urls] = usePreviewUrls(src, groupKey);
 
-  if (Array.isArray(urls)) {
-    mergedUrls = [...new Set(urls.indexOf(src) > -1 ? urls : [src].concat(urls))];
-  }
-
-  const [index, setIndex] = React.useState(mergedUrls.indexOf(src));
+  const [index, setIndex] = React.useState(urls.indexOf(src));
 
   const onAfterClose = () => {
     setScale(1);
@@ -96,7 +93,7 @@ const Preview: React.FC<PreviewProps> = props => {
     event.preventDefault();
     // Without this mask close will abnormal
     event.stopPropagation();
-    if (index < mergedUrls.length - 1) {
+    if (index < urls.length - 1) {
       setIndex(index + 1);
     }
   };
@@ -197,7 +194,7 @@ const Preview: React.FC<PreviewProps> = props => {
     }
 
     if (visible) {
-      setIndex(mergedUrls.indexOf(src));
+      setIndex(urls.indexOf(src));
     }
 
     return () => {
@@ -209,7 +206,7 @@ const Preview: React.FC<PreviewProps> = props => {
       /* istanbul ignore next */
       if (onTopMouseMoveListener) onTopMouseMoveListener.remove();
       if (!visible) {
-        setIndex(mergedUrls.indexOf(src));
+        setIndex(urls.indexOf(src));
       }
     };
   }, [visible, isMoving]);
@@ -250,14 +247,14 @@ const Preview: React.FC<PreviewProps> = props => {
           onMouseDown={onMouseDown}
           ref={imgRef}
           className={`${prefixCls}-img`}
-          src={mergedUrls[index]}
+          src={urls[index]}
           alt={alt}
           style={{
             transform: `scale3d(${scale}, ${scale}, 1) rotate(${rotate}deg)`,
           }}
         />
       </div>
-      {mergedUrls.length > 1 ? (
+      {urls.length > 1 ? (
         <div
           className={classnames(`${prefixCls}-switch-left`, {
             [`${prefixCls}-switch-left-disabled`]: index <= 0,
@@ -266,10 +263,10 @@ const Preview: React.FC<PreviewProps> = props => {
           <LeftOutlined onClick={onSwitchLeft} />
         </div>
       ) : null}
-      {mergedUrls.length > 1 ? (
+      {urls.length > 1 ? (
         <div
           className={classnames(`${prefixCls}-switch-right`, {
-            [`${prefixCls}-switch-right-disabled`]: index >= mergedUrls.length - 1,
+            [`${prefixCls}-switch-right-disabled`]: index >= urls.length - 1,
           })}
         >
           <RightOutlined onClick={onSwitchRight} />
