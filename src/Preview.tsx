@@ -194,7 +194,7 @@ const Preview: React.FC<PreviewProps> = props => {
       }
     } catch (error) {
       /* istanbul ignore next */
-      warning(false, `[rc-image] ${error}`);
+      console.warn(false, `[rc-image] ${error}`);
     }
 
     return () => {
