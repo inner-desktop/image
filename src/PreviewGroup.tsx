@@ -61,4 +61,4 @@ const Group: React.FC<GroupConsumerProps> = ({
   );
 };
 
-export default Group;
+export { Group as default, Provider };
