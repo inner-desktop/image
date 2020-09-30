@@ -241,6 +241,7 @@ const Preview: React.FC<PreviewProps> = props => {
         ))}
       </ul>
       <div
+        onClick={e => e.stopPropagation()}
         className={`${prefixCls}-img-wrapper`}
         style={{
           transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
