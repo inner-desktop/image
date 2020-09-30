@@ -50,7 +50,7 @@ const Preview: React.FC<PreviewProps> = props => {
   });
   const [isMoving, setMoving] = React.useState(false);
 
-  const { previewUrls } = React.useContext(context);
+  const { previewUrls, onMergeSrc } = React.useContext(context);
 
   const urls = previewUrls && previewUrls.length ? previewUrls : [src];
 
@@ -247,7 +247,7 @@ const Preview: React.FC<PreviewProps> = props => {
           onMouseDown={onMouseDown}
           ref={imgRef}
           className={`${prefixCls}-img`}
-          src={urls[index]}
+          src={onMergeSrc ? onMergeSrc(urls[index]) : urls[index]}
           alt={alt}
           style={{
             transform: `scale3d(${scale}, ${scale}, 1) rotate(${rotate}deg)`,

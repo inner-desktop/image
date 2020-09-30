@@ -3,11 +3,13 @@ import Preview from './Preview';
 
 export interface GroupConsumerProps {
   previewPrefixCls?: string;
+  onMergeSrc?(src: string): string;
 }
 
 export interface GroupConsumerValue extends GroupConsumerProps {
   isPreviewGroup?: boolean;
   previewUrls: string[];
+  onMergeSrc?(src: string): string;
   setPreviewUrls: React.Dispatch<React.SetStateAction<string[]>>;
   setCurrent: React.Dispatch<React.SetStateAction<string>>;
   setShowPreview: React.Dispatch<React.SetStateAction<boolean>>;
@@ -26,6 +28,7 @@ const { Provider } = context;
 
 const Group: React.FC<GroupConsumerProps> = ({
   previewPrefixCls = 'rc-image-preview',
+  onMergeSrc,
   children,
 }) => {
   const [previewUrls, setPreviewUrls] = React.useState([]);
@@ -41,6 +44,7 @@ const Group: React.FC<GroupConsumerProps> = ({
     <Provider
       value={{
         isPreviewGroup: true,
+        onMergeSrc,
         previewUrls,
         setPreviewUrls,
         setCurrent,
@@ -50,7 +54,7 @@ const Group: React.FC<GroupConsumerProps> = ({
     >
       {children}
       <Preview
-        ria-hidden={!isShowPreview}
+        aria-hidden={!isShowPreview}
         visible={isShowPreview}
         prefixCls={previewPrefixCls}
         onClose={onPreviewClose}
