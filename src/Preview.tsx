@@ -62,24 +62,27 @@ const Preview: React.FC<PreviewProps> = props => {
     setPosition(initialPosition);
   };
 
-  const onZoomIn = () => {
+  const onZoomIn = (e: React.MouseEvent) => {
     setScale(value => value + 1);
-
     setPosition(initialPosition);
+    e.stopPropagation();
   };
-  const onZoomOut = () => {
+  const onZoomOut = (e: React.MouseEvent) => {
     if (scale > 1) {
       setScale(value => value - 1);
     }
     setPosition(initialPosition);
+    e.stopPropagation();
   };
 
-  const onRotateRight = () => {
+  const onRotateRight = (e: React.MouseEvent) => {
     setRotate(value => value + 90);
+    e.stopPropagation();
   };
 
-  const onRotateLeft = () => {
+  const onRotateLeft = (e: React.MouseEvent) => {
     setRotate(value => value - 90);
+    e.stopPropagation();
   };
 
   const onSwitchLeft: React.MouseEventHandler<HTMLDivElement> = event => {
@@ -224,7 +227,7 @@ const Preview: React.FC<PreviewProps> = props => {
       visible={visible}
       wrapClassName={wrapClassName}
     >
-      <ul className={`${prefixCls}-operations`}>
+      <ul className={`${prefixCls}-operations`} onClick={e => e.stopPropagation()}>
         {tools.map(({ Icon, onClick, type, disabled }) => (
           <li
             className={classnames(toolClassName, {
