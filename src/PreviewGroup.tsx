@@ -5,6 +5,7 @@ import Preview, { PreviewProps } from './Preview';
 export interface GroupConsumerProps {
   previewPrefixCls?: string;
   icons?: PreviewProps['icons'];
+  onClickCollection?: (url: string) => void;
 }
 
 export interface GroupConsumerValue extends GroupConsumerProps {
@@ -27,6 +28,7 @@ export const context = React.createContext<GroupConsumerValue>({
   setShowPreview: () => null,
   setMousePosition: () => null,
   registerImage: () => () => null,
+  onClickCollection: () => null,
 });
 
 const { Provider } = context;
@@ -35,6 +37,7 @@ const Group: React.FC<GroupConsumerProps> = ({
   previewPrefixCls = 'rc-image-preview',
   children,
   icons = {},
+  onClickCollection,
 }) => {
   const [previewUrls, setPreviewUrls] = useState<Map<number, string>>(new Map());
   const [current, setCurrent] = useState<number>();
@@ -80,6 +83,7 @@ const Group: React.FC<GroupConsumerProps> = ({
         setShowPreview,
         setMousePosition,
         registerImage,
+        onClickCollection,
       }}
     >
       {children}

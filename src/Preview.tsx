@@ -22,6 +22,7 @@ export interface PreviewProps extends Omit<IDialogPropTypes, 'onClose'> {
     close?: React.ReactNode;
     left?: React.ReactNode;
     right?: React.ReactNode;
+    collection?: React.ReactNode;
   };
 }
 
@@ -31,17 +32,8 @@ const initialPosition = {
 };
 
 const Preview: React.FC<PreviewProps> = props => {
-  const {
-    prefixCls,
-    src,
-    alt,
-    onClose,
-    afterClose,
-    visible,
-    icons = {},
-    ...restProps
-  } = props;
-  const { rotateLeft, rotateRight, zoomIn, zoomOut, close, left, right } = icons;
+  const { prefixCls, src, alt, onClose, afterClose, visible, icons = {}, ...restProps } = props;
+  const { rotateLeft, rotateRight, zoomIn, zoomOut, close, left, right, collection } = icons;
   const [scale, setScale] = useState(1);
   const [rotate, setRotate] = useState(0);
   const [position, setPosition] = useFrameSetState<{
@@ -61,7 +53,9 @@ const Preview: React.FC<PreviewProps> = props => {
     deltaY: 0,
   });
   const [isMoving, setMoving] = React.useState(false);
-  const { previewUrls, current, isPreviewGroup, setCurrent } = React.useContext(context);
+  const { previewUrls, current, isPreviewGroup, setCurrent, onClickCollection } = React.useContext(
+    context,
+  );
   const previewGroupCount = previewUrls.size;
   const previewUrlsKeys = Array.from(previewUrls.keys());
   const currentPreviewIndex = previewUrlsKeys.indexOf(current);
@@ -75,17 +69,17 @@ const Preview: React.FC<PreviewProps> = props => {
     setPosition(initialPosition);
   };
 
-  const onZoomIn = () => {
+  const onZoomIn = useCallback(() => {
     setScale(value => value + 1);
     setPosition(initialPosition);
-  };
+  });
 
-  const onZoomOut = () => {
+  const onZoomOut = useCallback(() => {
     if (scale > 1) {
       setScale(value => value - 1);
     }
     setPosition(initialPosition);
-  };
+  });
 
   const onRotateRight = () => {
     setRotate(value => value + 90);
@@ -93,6 +87,11 @@ const Preview: React.FC<PreviewProps> = props => {
 
   const onRotateLeft = () => {
     setRotate(value => value - 90);
+  };
+
+  const onAddToCollection: React.MouseEventHandler<HTMLDivElement> = event => {
+    event.preventDefault();
+    onClickCollection(combinationSrc);
   };
 
   const onSwitchLeft: React.MouseEventHandler<HTMLDivElement> = event => {
@@ -144,6 +143,11 @@ const Preview: React.FC<PreviewProps> = props => {
       icon: rotateLeft,
       onClick: onRotateLeft,
       type: 'rotateLeft',
+    },
+    {
+      icon: collection,
+      onClick: onAddToCollection,
+      type: 'collection',
     },
   ];
 
@@ -206,7 +210,7 @@ const Preview: React.FC<PreviewProps> = props => {
     } else if (wheelDirection < 0) {
       onZoomIn();
     }
-  }, [lastWheelZoomDirection]);
+  }, [lastWheelZoomDirection, onZoomIn, onZoomOut]);
 
   useEffect(() => {
     let onTopMouseUpListener;
@@ -240,7 +244,7 @@ const Preview: React.FC<PreviewProps> = props => {
       /* istanbul ignore next */
       if (onTopMouseMoveListener) onTopMouseMoveListener.remove();
     };
-  }, [visible, isMoving]);
+  }, [visible, isMoving, onMouseUp, onMouseMove, onWheelMove]);
 
   return (
     <Dialog
