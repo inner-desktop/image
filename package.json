@@ -1,5 +1,5 @@
 {
-  "name": "rc-image",
+  "name": "@inner-desktop/rc-image",
   "version": "5.1.4",
   "description": "React easy to use image component",
   "keywords": [
