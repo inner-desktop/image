@@ -6,6 +6,7 @@ export interface GroupConsumerProps {
   previewPrefixCls?: string;
   icons?: PreviewProps['icons'];
   onClickCollection?: (url: string) => void;
+  enableCollection?: boolean
 }
 
 export interface GroupConsumerValue extends GroupConsumerProps {
@@ -29,6 +30,7 @@ export const context = React.createContext<GroupConsumerValue>({
   setMousePosition: () => null,
   registerImage: () => () => null,
   onClickCollection: () => null,
+  enableCollection: false
 });
 
 const { Provider } = context;
@@ -38,6 +40,7 @@ const Group: React.FC<GroupConsumerProps> = ({
   children,
   icons = {},
   onClickCollection,
+  enableCollection
 }) => {
   const [previewUrls, setPreviewUrls] = useState<Map<number, string>>(new Map());
   const [current, setCurrent] = useState<number>();
@@ -84,6 +87,7 @@ const Group: React.FC<GroupConsumerProps> = ({
         setMousePosition,
         registerImage,
         onClickCollection,
+        enableCollection,
       }}
     >
       {children}

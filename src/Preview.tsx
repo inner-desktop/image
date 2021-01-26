@@ -53,7 +53,7 @@ const Preview: React.FC<PreviewProps> = props => {
     deltaY: 0,
   });
   const [isMoving, setMoving] = React.useState(false);
-  const { previewUrls, current, isPreviewGroup, setCurrent, onClickCollection } = React.useContext(
+  const { previewUrls, current, isPreviewGroup, setCurrent, onClickCollection, enableCollection } = React.useContext(
     context,
   );
   const previewGroupCount = previewUrls.size;
@@ -69,17 +69,17 @@ const Preview: React.FC<PreviewProps> = props => {
     setPosition(initialPosition);
   };
 
-  const onZoomIn = useCallback(() => {
+  const onZoomIn = () => {
     setScale(value => value + 1);
     setPosition(initialPosition);
-  });
+  }
 
-  const onZoomOut = useCallback(() => {
+  const onZoomOut = () => {
     if (scale > 1) {
       setScale(value => value - 1);
     }
     setPosition(initialPosition);
-  });
+  };
 
   const onRotateRight = () => {
     setRotate(value => value + 90);
@@ -89,7 +89,7 @@ const Preview: React.FC<PreviewProps> = props => {
     setRotate(value => value - 90);
   };
 
-  const onAddToCollection: React.MouseEventHandler<HTMLDivElement> = event => {
+  const onAddToCollection: React.MouseEventHandler<any> = event => {
     event.preventDefault();
     onClickCollection(combinationSrc);
   };
@@ -148,6 +148,7 @@ const Preview: React.FC<PreviewProps> = props => {
       icon: collection,
       onClick: onAddToCollection,
       type: 'collection',
+      disabled: !enableCollection
     },
   ];
 
@@ -210,7 +211,7 @@ const Preview: React.FC<PreviewProps> = props => {
     } else if (wheelDirection < 0) {
       onZoomIn();
     }
-  }, [lastWheelZoomDirection, onZoomIn, onZoomOut]);
+  }, [lastWheelZoomDirection]);
 
   useEffect(() => {
     let onTopMouseUpListener;
@@ -244,7 +245,7 @@ const Preview: React.FC<PreviewProps> = props => {
       /* istanbul ignore next */
       if (onTopMouseMoveListener) onTopMouseMoveListener.remove();
     };
-  }, [visible, isMoving, onMouseUp, onMouseMove, onWheelMove]);
+  }, [visible, isMoving]);
 
   return (
     <Dialog

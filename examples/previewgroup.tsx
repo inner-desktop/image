@@ -57,7 +57,7 @@ export default function PreviewGroup() {
 
   return (
     <div>
-      <Image.PreviewGroup icons={icons} onClickCollection={onClickCollection}>
+      <Image.PreviewGroup icons={icons} onClickCollection={onClickCollection} enableCollection>
         <Image wrapperStyle={{ marginRight: 24, width: 200 }} src={require('./images/1.jpeg')} />
         <Image
           wrapperStyle={{ marginRight: 24, width: 200 }}
@@ -72,7 +72,7 @@ export default function PreviewGroup() {
 
       <h2>PreviewGroup with NestedImage</h2>
 
-      <Image.PreviewGroup icons={icons} onClickCollection={onClickCollection}>
+      <Image.PreviewGroup icons={icons}>
         <NestedImage urls={urls} utilRef={utilRef} />
       </Image.PreviewGroup>
 
